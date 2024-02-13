@@ -11,27 +11,30 @@ function setScale(image) {
     return scale
 }
 
-// Function to apply the orange filter
 function applyOrangeFilter(context){
-    const centerX = 256; // Center X coordinate of the circle
-    const centerY = 256; // Center Y coordinate of the circle
-    const radius = 256; // Radius of the circle
+    const centerX = 256;
+    const centerY = 256;
+    const radius = 256;
 
     // Iterate over a square region covering the bounding box of the circle
-    for (let i = centerX - radius; i < centerX + radius; i += 2){
-        for (let j = centerY - radius; j < centerY + radius; j += 2) {
+    for (let i = 0; i < 512; i += 2){
+        for (let j = 0; j < 512; j += 2) {
             // Calculate the distance from the current pixel to the center of the circle
             const distanceSquared = (i - centerX) ** 2 + (j - centerY) ** 2;
 
             // Check if the current pixel is inside the circle
             if (distanceSquared <= radius ** 2) {
                 // Get the pixel data of the current pixel
-                const pixel = context.getImageData(i, j, 2, 2).data;
+                const pixel = context.getImageData(i, j, 1, 1).data;
 
                 // Check if the pixel is transparent
                 if (pixel[3] === 0) {
                     // If the pixel is transparent, replace it with the orange fade color
                     context.fillStyle = 'rgba(255, 165, 0, 0.5)';
+                    context.fillRect(i, j, 2, 2);
+                } else {
+                    // If the pixel is not transparent, apply the orange filter to give it a "happy" feeling
+                    context.fillStyle = 'rgba(255, 195, 0, 0.12)';
                     context.fillRect(i, j, 2, 2);
                 }
             }
@@ -54,7 +57,7 @@ input.addEventListener('change', function() {
     const image = new Image();
     image.onload = function() {
         const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
+        const context = canvas.getContext('2d', { willReadFrequently: true });
         canvas.width = 512;
         canvas.height = 512;
 

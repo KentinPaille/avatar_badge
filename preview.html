@@ -4,19 +4,20 @@
     <title>Badge</title>
     <style>
         #transformedCanvas {
-            border: 1px solid black;
+            border: 1px solid black; /* Add a border */
+            border-radius: 50%; /* Make the canvas circular */
             margin-left: 50px; /* Position the canvas 50px to the right */
         }
 
         #fileInput {
-            display: block;
-            margin: auto;
-            margin-top: 2%;
+            display: block; /* Make the input a block element */
+            margin: auto; /* Center the input */
+            margin-top: 2%; /* Add some space on top */
         }
 
         body {
-            text-align: center;
-            margin-top: 30px;
+            text-align: center; /* Center the text */
+            margin-top: 30px; /* Add some space on top */
         }
     </style>
 </head>
@@ -27,10 +28,12 @@
 
     <script src="script.js"></script>
     <script>
+        // Get the canvas and context
         const canvas = document.getElementById('transformedCanvas');
         const context = canvas.getContext('2d');
         const defaultImage = new Image();
 
+        // Draw the default image
         defaultImage.src = './img/default_pp.jpg'
         defaultImage.onload = function() {
             context.drawImage(defaultImage, 0, 0, canvas.width, canvas.height);
