@@ -2,31 +2,28 @@ function applyOrangeFilter(context){
     const centerX = 256;
     const centerY = 256;
     const radius = 256;
+    var mean_brightness = 0;
 
     // Iterate over a square region covering the bounding box of the circle
-    for (let i = 0; i < 512; i += 2){
-        for (let j = 0; j < 512; j += 2) {
+    for (let i = 0; i < 512; i += 1){
+        for (let j = 0; j < 512; j += 1) {
             // Calculate the distance from the current pixel to the center of the circle
             const distanceSquared = (i - centerX) ** 2 + (j - centerY) ** 2;
-
             // Check if the current pixel is inside the circle
-            if (distanceSquared <= radius ** 2) {
+            if (distanceSquared < radius ** 2) {
                 // Get the pixel data of the current pixel
                 const pixel = context.getImageData(i, j, 1, 1).data;
 
-                // Check if the pixel is transparent
-                if (pixel[3] === 0) {
-                    // If the pixel is transparent, replace it with the orange fade color
-                    context.fillStyle = 'rgba(255, 165, 0, 0.5)';
-                    context.fillRect(i, j, 2, 2);
-                } else {
-                    // If the pixel is not transparent, apply the orange filter to give it a "happy" feeling
-                    context.fillStyle = 'rgba(255, 195, 0, 0.12)';
-                    context.fillRect(i, j, 2, 2);
-                }
+                // Calculate the mean brightness of the pixels inside the circle
+                mean_brightness += (pixel[0] + pixel[1] + pixel[2]) / 3;
             }
         }
     }
+    mean_brightness /= 262144; // 512px * 512px
+
+    // Apply an orange filter to the circle based on the mean brightness of the pixels inside the circle
+    context.fillStyle = 'rgba(255, ' + (255 - mean_brightness) + ', 0, 0.1)';
+    context.fillRect(0, 0, 512, 512);
 }
 
 function convertToBadge(image) {
@@ -43,6 +40,10 @@ function convertToBadge(image) {
     // Calculate the scale of the image
     let scale = Math.max(image.width / image.height, image.height / image.width);
 
+    // Fill the canvas with white to avoid transparency
+    context.fillStyle = 'rgba(255, 255, 255, 0)';
+    context.fillRect(0, 0, 512, 512);
+
     // Clip the canvas to a circle
     context.save();
     context.arc(256, 256, 256, 0, Math.PI * 2);
@@ -50,9 +51,9 @@ function convertToBadge(image) {
 
     // Draw the image on the canvas with the correct scale
     if (image.width > image.height) {
-        context.drawImage(image, 128 * (scale - 1), 0, image.width, image.height, 0, 0, 512 * scale, 512);
+        context.drawImage(image, image.width - image.height, 0, image.height, image.height, 0, 0, 512 * scale, 512);
     } else if (image.height > image.width) {
-        context.drawImage(image, 0, 128 * (scale - 1), image.width, image.height, 0, 0, 512, 512 * scale);
+        context.drawImage(image, 0, image.height - image.width, image.width, image.width, 0, 0, 512, 512 * scale);
     } else {
         context.drawImage(image, 0, 0, 512, 512);
     }
