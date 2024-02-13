@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Badge</title>
+    <style>
+        #transformedCanvas {
+            border: 1px solid black;
+            margin-left: 50px; /* Position the canvas 50px to the right */
+        
+        }
+
+        #fileInput {
+            display: block;
+            margin: auto;
+            margin-top: 2%;
+        }
+
+        body {
+            text-align: center;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Badge Preview</h1>
+    
+    <canvas id="transformedCanvas" width="512" height="512"></canvas>
+    
+    <input type="file" id="fileInput" accept="image/*"/>
+    
+    <script src="script.js"></script>
+    <script>
+        const canvas = document.getElementById('transformedCanvas');
+        const context = canvas.getContext('2d');
+        const defaultImage = new Image();
+
+        defaultImage.src = './img/default_pp.jpg'
+        defaultImage.onload = function() {
+            context.drawImage(defaultImage, 0, 0, canvas.width, canvas.height);
+        };
+    </script>
+</body>
+</html>
