@@ -3,6 +3,7 @@ function applyOrangeFilter(context){
     const centerY = 256;
     const radius = 256;
     var mean_brightness = 0;
+    var pixel_in_circle = 0;
 
     // Iterate over a square region covering the bounding box of the circle
     for (let i = 0; i < 512; i += 1){
@@ -13,20 +14,22 @@ function applyOrangeFilter(context){
             if (distanceSquared < radius ** 2) {
                 // Get the pixel data of the current pixel
                 const pixel = context.getImageData(i, j, 1, 1).data;
-
+                
                 // Calculate the mean brightness of the pixels inside the circle
                 mean_brightness += (pixel[0] + pixel[1] + pixel[2]) / 3;
+                pixel_in_circle += 1;
             }
         }
     }
-    mean_brightness /= 262144; // 512px * 512px
+    mean_brightness /= pixel_in_circle;
 
     // Apply an orange filter to the circle based on the mean brightness of the pixels inside the circle
-    context.fillStyle = 'rgba(255, ' + (255 - mean_brightness) + ', 0, 0.1)';
+    context.fillStyle = 'rgba(255, ' + (mean_brightness) + ', 0, 0.15)';
     context.fillRect(0, 0, 512, 512);
 }
 
 function convertToBadge(image) {
+    // Create a canvas and a 2D context
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d', { willReadFrequently: true });
     canvas.width = 512;
@@ -37,29 +40,27 @@ function convertToBadge(image) {
         alert("The image is not on the good size and will be resize ")
     }
 
-    // Calculate the scale of the image
-    let scale = Math.max(image.width / image.height, image.height / image.width);
-
     // Fill the canvas with white to avoid transparency
     context.fillStyle = 'rgba(255, 255, 255, 0)';
     context.fillRect(0, 0, 512, 512);
+
+    // Calculate the scale of the image
+    let scale = Math.min(image.width / 512, image.height / 512);
+
+    // Calculate the offset to center the image
+    let offsetX = (image.width - 512 * scale) / 2;
+    let offsetY = (image.height - 512 * scale) / 2;
+
+    // Draw the image on the canvas with the correct scale and offset
+    context.drawImage(image, offsetX, offsetY, image.width - offsetX * 2, image.height - offsetY * 2, 0, 0, 512, 512);
+
+    // Apply the orange filter
+    applyOrangeFilter(context);
 
     // Clip the canvas to a circle
     context.save();
     context.arc(256, 256, 256, 0, Math.PI * 2);
     context.clip();
-
-    // Draw the image on the canvas with the correct scale
-    if (image.width > image.height) {
-        context.drawImage(image, image.width - image.height, 0, image.height, image.height, 0, 0, 512 * scale, 512);
-    } else if (image.height > image.width) {
-        context.drawImage(image, 0, image.height - image.width, image.width, image.width, 0, 0, 512, 512 * scale);
-    } else {
-        context.drawImage(image, 0, 0, 512, 512);
-    }
-
-    // Apply the orange filter
-    applyOrangeFilter(context);
 
     return context.getImageData(0, 0, 512, 512);
 }
